@@ -1,8 +1,8 @@
-from rest_framework.permissions import BasePermission, SAFE_METHODS
+from rest_framework.permissions import BasePermission
 from .models import Librarian
 
 
-class IsLibrarianOrReadOnly(BasePermission):
+class IsLibrarian(BasePermission):
     def has_permission(self, request, view):
         is_librarian = False
         if request.user.is_authenticated:
@@ -12,4 +12,4 @@ class IsLibrarianOrReadOnly(BasePermission):
             except Librarian.DoesNotExist:
                 pass
 
-        return bool(request.method in SAFE_METHODS or is_librarian)
+        return is_librarian
