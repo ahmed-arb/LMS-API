@@ -8,6 +8,14 @@ class User(AbstractUser):
     gender = models.CharField(max_length=10, blank=True)
     books = models.ManyToManyField('Book', through='BookLoan', related_name='users')
 
+    @property
+    def is_librarian(self):
+        try:
+            Librarian.objects.get(user_id=self.id)
+            return True
+        except Librarian.DoesNotExist:
+            return False
+
 
 class Book(models.Model):
     name = models.CharField(max_length=100)

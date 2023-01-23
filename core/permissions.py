@@ -1,15 +1,17 @@
-from rest_framework.permissions import BasePermission
+from rest_framework.permissions import BasePermission, SAFE_METHODS
 from .models import Librarian
 
 
 class IsLibrarian(BasePermission):
     def has_permission(self, request, view):
-        is_librarian = False
-        if request.user.is_authenticated:
-            try:
-                Librarian.objects.get(user=request.user)
-                is_librarian = True
-            except Librarian.DoesNotExist:
-                pass
+        return request.user.is_librarian
 
-        return is_librarian
+
+class ReadOnly(BasePermission):
+    def has_permission(self, request, view):
+        return request.method in SAFE_METHODS
+
+
+class IsLoanOwner(BasePermission):
+    def has_object_permission(self, request, view, obj):
+        return obj.user == request.user

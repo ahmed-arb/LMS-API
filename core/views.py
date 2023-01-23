@@ -1,10 +1,10 @@
 from rest_framework.filters import SearchFilter
 from rest_framework import viewsets
-from rest_framework.permissions import SAFE_METHODS, AllowAny, IsAuthenticated
+from rest_framework.permissions import SAFE_METHODS, AllowAny, IsAuthenticated, IsAdminUser
 
-from .permissions import IsLibrarian
-from .models import Book
-from .serializers import BookSerializer
+from .permissions import IsLibrarian, IsLoanOwner, ReadOnly
+from .models import Book, BookLoan
+from .serializers import FullBookLoanSerializer, BasicBookLoanSerializer, BookSerializer
 
 
 class BookViewSet(viewsets.ModelViewSet):
@@ -12,10 +12,25 @@ class BookViewSet(viewsets.ModelViewSet):
     serializer_class = BookSerializer
     filter_backends = [SearchFilter]
     search_fields = ['name', 'author', 'publisher']
+    permission_classes = [IsAdminUser | IsLibrarian | ReadOnly]
 
-    def get_permissions(self):
-        if self.request.method not in SAFE_METHODS:
-            permission_classes = [IsAuthenticated, IsLibrarian]
-        else:
-            permission_classes = [AllowAny]
-        return [permission() for permission in permission_classes]
+
+class BookLoanViewSet(viewsets.ModelViewSet):
+    queryset = BookLoan.objects.all()
+    permission_classes = [IsAdminUser | IsLibrarian | IsLoanOwner | ReadOnly]
+
+    def get_queryset(self):
+        user = self.request.user
+
+        if user.is_staff or user.is_librarian:
+            return BookLoan.objects.all()
+
+        return BookLoan.objects.filter(user_id=user.id)
+
+    def get_serializer_class(self):
+        if self.request.user.is_librarian:
+            return FullBookLoanSerializer
+        return BasicBookLoanSerializer
+
+    def perform_create(self, serializer):
+        return serializer.save(user=self.request.user)
