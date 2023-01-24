@@ -15,8 +15,11 @@ class BaseBookLoanSerializer(serializers.ModelSerializer):
     def validate(self, attrs):
         loan = BookLoan(**attrs)
         book = Book.objects.get(pk=loan.book.id)
+
+        # requested book should be available
         if book.stock == 0:
             raise serializers.ValidationError("Requested book is out of stock.")
+
         return super().validate(attrs)
 
 
