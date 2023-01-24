@@ -13,7 +13,7 @@ def update_inventory(sender, **kwargs):
     else:
         loan_previous = BookLoan.objects.get(id=loan_instance.id)
         if loan_previous.status != loan_instance.status:  # status updated
-            if loan_instance.status == 'issued':
+            if loan_instance.status == "issued":
                 Book.objects.filter(pk=loan_instance.book.id).update(stock=F("stock") - 1)
-            elif loan_instance.status == 'returned':
+            elif loan_instance.status == "returned":
                 Book.objects.filter(pk=loan_instance.book.id).update(stock=F("stock") + 1)

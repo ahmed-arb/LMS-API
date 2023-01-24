@@ -19,7 +19,7 @@ class User(AbstractUser):
 
 class Book(models.Model):
     name = models.CharField(max_length=100)
-    cover = models.ImageField(upload_to='books/')
+    cover = models.ImageField(upload_to='files/')
     author = models.CharField(max_length=100)
     publisher = models.CharField(max_length=100)
     stock = models.IntegerField()
