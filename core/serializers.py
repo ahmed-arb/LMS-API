@@ -1,6 +1,6 @@
 from django.db.models import Q
 from rest_framework import serializers
-from .models import Book, BookLoan
+from .models import Book, BookLoan, BookRequest
 
 
 class BookSerializer(serializers.ModelSerializer):
@@ -59,4 +59,38 @@ class UserBookLoanSerializer(BaseBookLoanSerializer):
             "date_borrowed",
             "date_due",
             "date_returned",
+        )
+
+
+class FullBookRequestSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = BookRequest
+        fields = [
+            "id",
+            "user",
+            "book_name",
+            "status",
+            "created_at",
+            "reason",
+        ]
+        read_only_fields = ("id", "user", "created_at")
+
+
+class UserBookRequestSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = BookRequest
+        fields = [
+            "id",
+            "user",
+            "book_name",
+            "status",
+            "created_at",
+            "reason",
+        ]
+        read_only_fields = (
+            "id",
+            "user",
+            "status",
+            "created_at",
+            "reason",
         )

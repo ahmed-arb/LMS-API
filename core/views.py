@@ -7,8 +7,14 @@ from rest_framework.response import Response
 from templated_mail.mail import BaseEmailMessage
 
 from .permissions import IsLibrarian, ReadOnly
-from .models import Book, BookLoan
-from .serializers import FullBookLoanSerializer, UserBookLoanSerializer, BookSerializer
+from .models import Book, BookLoan, BookRequest
+from .serializers import (
+    FullBookLoanSerializer,
+    FullBookRequestSerializer,
+    UserBookLoanSerializer,
+    BookSerializer,
+    UserBookRequestSerializer,
+)
 
 
 class BookViewSet(viewsets.ModelViewSet):
@@ -51,3 +57,24 @@ class BookLoanViewSet(viewsets.ModelViewSet):
         )
         message.send([loan.user.email])
         return Response({"detail": "reminder email sent to user"})
+
+
+class BookRequestViewSet(viewsets.ModelViewSet):
+    permission_classes = [IsAuthenticated]
+    filterset_fields = ["user", "status"]
+
+    def get_queryset(self):
+        user = self.request.user
+        if user.is_superuser or user.is_librarian:
+            return BookRequest.objects.all()
+
+        return BookRequest.objects.filter(user_id=user.id)
+
+    def get_serializer_class(self):
+        user = self.request.user
+        if user.is_librarian:
+            return FullBookRequestSerializer
+        return UserBookRequestSerializer
+
+    def perform_create(self, serializer):
+        return serializer.save(user=self.request.user)
