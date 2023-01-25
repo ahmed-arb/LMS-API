@@ -4,7 +4,7 @@ from core.views import BookLoanViewSet, BookViewSet
 
 router = DefaultRouter()
 router.register(r"books", BookViewSet)
-router.register(r"loans", BookLoanViewSet)
+router.register(r"loans", BookLoanViewSet, basename='BookLoan')
 
 urlpatterns = [
     path("", include(router.urls)),

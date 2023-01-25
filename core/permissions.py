@@ -4,7 +4,7 @@ from .models import Librarian
 
 class IsLibrarian(BasePermission):
     def has_permission(self, request, view):
-        return request.user.is_librarian
+        return bool(request.user.is_authenticated and request.user.is_librarian)
 
 
 class ReadOnly(BasePermission):

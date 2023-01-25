@@ -151,17 +151,17 @@ SIMPLE_JWT = {
 
 # Email settings
 EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
-EMAIL_HOST = env("EMAIL_HOST")
-EMAIL_PORT = env("EMAIL_PORT")
+EMAIL_HOST = "localhost"
+EMAIL_PORT = 2525
 EMAIL_HOST_USER = env("EMAIL_HOST_USER")
 EMAIL_HOST_PASSWORD = env("EMAIL_HOST_PASSWORD")
-EMAIL_USE_TLS = True
-
+EMAIL_USE_TLS = False
+DEFAULT_FROM_EMAIL = "lms@lms.com"
 
 CRONJOBS = [
     (
         "0 10 */1 * *",
         "core.cron.email_overdue_books",
-        ">> " + os.path.join(BASE_DIR, "logs/cron_logs/cron_email_overdue_books.log" + " 2>&1 "),
+        ">> " + os.path.join(BASE_DIR, "logs/cron_logs/email_overdue_books.log" + " 2>&1 "),
     )
 ]

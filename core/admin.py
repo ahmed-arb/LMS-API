@@ -5,10 +5,10 @@ from core.models import User, Librarian
 
 
 @admin.register(Librarian)
-class UserAdmin(admin.ModelAdmin):
+class LibrarianAdmin(admin.ModelAdmin):
     pass
 
 
 @admin.register(User)
 class UserAdmin(BaseUserAdmin):
-    pass
+    add_fieldsets = ((None, {'classes': ('wide',), 'fields': ('username', 'email', 'password1', 'password2')}),)

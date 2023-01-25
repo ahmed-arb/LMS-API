@@ -4,6 +4,7 @@ from django.utils.translation import gettext_lazy as _
 
 
 class User(AbstractUser):
+    email = models.EmailField(_("email address"), unique=True, blank=False, null=False)
     phone_number = models.CharField(max_length=20, blank=True)
     gender = models.CharField(max_length=10, blank=True)
     books = models.ManyToManyField('Book', through='BookLoan', related_name='users')
