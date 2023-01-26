@@ -20,6 +20,12 @@ class BaseBookLoanSerializer(serializers.ModelSerializer):
         if book.stock == 0:
             raise serializers.ValidationError("Requested book is out of stock.")
 
+        if loan.status == "issued":
+            if not loan.date_borrowed:
+                raise serializers.ValidationError({"date_borrowed": "Borrow date is required when issuing a book."})
+            if not loan.date_due:
+                raise serializers.ValidationError({"date_due": "Due date is required when issuing a book."})
+
         return super().validate(attrs)
 
 
@@ -62,7 +68,15 @@ class UserBookLoanSerializer(BaseBookLoanSerializer):
         )
 
 
-class FullBookRequestSerializer(serializers.ModelSerializer):
+class BaseBookRequestSerializer(serializers.ModelSerializer):
+    def validate(self, data):
+        if data["status"] == "rejected" and not data["reason"]:
+            raise serializers.ValidationError({"reason": "Reason is required for rejected books."})
+
+        return super().validate(data)
+
+
+class FullBookRequestSerializer(BaseBookRequestSerializer):
     class Meta:
         model = BookRequest
         fields = [
@@ -76,7 +90,7 @@ class FullBookRequestSerializer(serializers.ModelSerializer):
         read_only_fields = ("id", "user", "created_at")
 
 
-class UserBookRequestSerializer(serializers.ModelSerializer):
+class UserBookRequestSerializer(BaseBookRequestSerializer):
     class Meta:
         model = BookRequest
         fields = [
@@ -94,3 +108,10 @@ class UserBookRequestSerializer(serializers.ModelSerializer):
             "created_at",
             "reason",
         )
+
+    # def validate(self, data):
+    #     print(data["status"])
+    #     if data["status"] == "rejected" and data["reason"] == "":
+    #         raise serializers.ValidationError({"reason":"Reason is required for rejected books."})
+
+    #     return super().validate(data)
