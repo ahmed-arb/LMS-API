@@ -1,3 +1,5 @@
+"""Core model schemas"""
+
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.utils.translation import gettext_lazy as _
@@ -11,6 +13,11 @@ class User(AbstractUser):
 
     @property
     def is_librarian(self):
+        """checks is the user is librarian or not
+
+        Returns:
+            Bool: if the user is librarian.
+        """
         try:
             Librarian.objects.get(user_id=self.id)
             return True

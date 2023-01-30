@@ -1,5 +1,6 @@
+"""Core permission classes"""
+
 from rest_framework.permissions import BasePermission, SAFE_METHODS
-from .models import Librarian
 
 
 class IsLibrarian(BasePermission):
