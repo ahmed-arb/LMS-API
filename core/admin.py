@@ -8,9 +8,19 @@ from core.models import User, Librarian
 
 @admin.register(Librarian)
 class LibrarianAdmin(admin.ModelAdmin):
-    pass
+    """Registers Librarian model to admin panel"""
 
 
 @admin.register(User)
 class UserAdmin(BaseUserAdmin):
-    add_fieldsets = ((None, {'classes': ('wide',), 'fields': ('username', 'email', 'password1', 'password2')}),)
+    """Over ride user view in admin panel"""
+
+    add_fieldsets = (
+        (
+            None,
+            {
+                "classes": ("wide",),
+                "fields": ("username", "email", "password1", "password2"),
+            },
+        ),
+    )

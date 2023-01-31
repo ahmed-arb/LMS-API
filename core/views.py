@@ -1,3 +1,7 @@
+"""
+Views for core app
+"""
+
 from rest_framework.filters import SearchFilter
 from rest_framework import viewsets
 from rest_framework.permissions import IsAdminUser, IsAuthenticated
@@ -18,6 +22,10 @@ from .serializers import (
 
 
 class BookViewSet(viewsets.ModelViewSet):
+    """
+    Book viewset
+    """
+
     queryset = Book.objects.all()
     serializer_class = BookSerializer
     filter_backends = [SearchFilter]
@@ -26,6 +34,10 @@ class BookViewSet(viewsets.ModelViewSet):
 
 
 class BookLoanViewSet(viewsets.ModelViewSet):
+    """
+    Book loan viewset. It only lists users own loans or all loans for admins and librarians.
+    """
+
     permission_classes = [IsAuthenticated]
     filterset_fields = ["book", "user", "status"]
 
@@ -45,8 +57,20 @@ class BookLoanViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         return serializer.save(user=self.request.user)
 
-    @action(detail=True, methods=["get"], permission_classes=[IsAdminUser | IsLibrarian])
+    @action(
+        detail=True, methods=["get"], permission_classes=[IsAdminUser | IsLibrarian]
+    )
     def remind(self, request, pk):
+        """
+        Reminds user, by email, for their outstanding loan.
+
+        Args:
+            request: Request object
+            pk: primary key for BookLoan
+
+        Returns:
+            dict: detail message
+        """
         loan = BookLoan.objects.get(pk=pk)
         message = BaseEmailMessage(
             template_name="emails/overdue_books.html",
@@ -60,6 +84,10 @@ class BookLoanViewSet(viewsets.ModelViewSet):
 
 
 class BookRequestViewSet(viewsets.ModelViewSet):
+    """
+    Book request model viewset for requesting unavailable books.
+    """
+
     permission_classes = [IsAuthenticated]
     filterset_fields = ["user", "status"]
 

@@ -1,4 +1,4 @@
-""" This module has all core app corns jobs"""
+""" This module has all core app corn jobs"""
 
 from datetime import datetime
 

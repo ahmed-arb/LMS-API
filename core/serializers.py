@@ -1,15 +1,54 @@
+"""
+Core app serializers
+"""
 from django.db.models import Q
 from rest_framework import serializers
+
+from djoser.serializers import (
+    UserSerializer as BaseUserSerializer,
+    UserCreateSerializer as BaseUserCreateSerializer,
+)
+
 from .models import Book, BookLoan, BookRequest
 
 
+class UserCreateSerializer(BaseUserCreateSerializer):
+    """
+    User Create serializer. Adds user profile fields when creating a user.
+    """
+
+    class Meta(BaseUserCreateSerializer.Meta):
+        fields = ["id", "username", "password", "email", "phone_number", "gender"]
+
+
+class CurrentUserSerializer(BaseUserSerializer):
+    """
+    Current User serializer. Adds user profile fields when getting a user.
+    """
+
+    class Meta(BaseUserSerializer.Meta):
+        fields = ["id", "username", "email", "phone_number", "gender"]
+
+
 class BookSerializer(serializers.ModelSerializer):
+    """
+    Serializer for Books
+    """
+
     class Meta:
         model = Book
         fields = ["id", "name", "cover", "author", "publisher", "stock"]
 
 
 class BaseBookLoanSerializer(serializers.ModelSerializer):
+    """
+    Base serializer for book loans. It makes sure:
+
+    * All book loans only have available books for loan.
+    * Issued books have: date_borrowed and date_due.
+    * Returned books have date_returned.
+    """
+
     book = serializers.PrimaryKeyRelatedField(queryset=Book.objects.filter(~Q(stock=0)))
 
     def validate(self, attrs):
@@ -22,14 +61,27 @@ class BaseBookLoanSerializer(serializers.ModelSerializer):
 
         if loan.status == "issued":
             if not loan.date_borrowed:
-                raise serializers.ValidationError({"date_borrowed": "Borrow date is required when issuing a book."})
+                raise serializers.ValidationError(
+                    {"date_borrowed": "Borrow date is required when issuing a book."}
+                )
             if not loan.date_due:
-                raise serializers.ValidationError({"date_due": "Due date is required when issuing a book."})
+                raise serializers.ValidationError(
+                    {"date_due": "Due date is required when issuing a book."}
+                )
+
+        if loan.status == "returned" and not loan.date_returned:
+            raise serializers.ValidationError(
+                {"date_returned": "Returned date is required when returning a book."}
+            )
 
         return super().validate(attrs)
 
 
 class FullBookLoanSerializer(BaseBookLoanSerializer):
+    """
+    Book loans serializer for librarians and admin.
+    """
+
     class Meta:
         model = BookLoan
         fields = [
@@ -46,6 +98,10 @@ class FullBookLoanSerializer(BaseBookLoanSerializer):
 
 
 class UserBookLoanSerializer(BaseBookLoanSerializer):
+    """
+    Book Loan serializer for users.
+    """
+
     class Meta:
         model = BookLoan
         fields = [
@@ -69,14 +125,27 @@ class UserBookLoanSerializer(BaseBookLoanSerializer):
 
 
 class BaseBookRequestSerializer(serializers.ModelSerializer):
-    def validate(self, data):
-        if data["status"] == "rejected" and not data["reason"]:
-            raise serializers.ValidationError({"reason": "Reason is required for rejected books."})
+    """
+    Base book request serializer from which all book request serializers must inherit. It makes sure that:
 
-        return super().validate(data)
+    * Admins and librarian provide reason for rejecting a book request.
+
+    """
+
+    def validate(self, attrs):
+        if attrs["status"] == "rejected" and not attrs["reason"]:
+            raise serializers.ValidationError(
+                {"reason": "Reason is required for rejected books."}
+            )
+
+        return super().validate(attrs)
 
 
 class FullBookRequestSerializer(BaseBookRequestSerializer):
+    """
+    Book request serializer for admins and librarians.
+    """
+
     class Meta:
         model = BookRequest
         fields = [
@@ -91,6 +160,10 @@ class FullBookRequestSerializer(BaseBookRequestSerializer):
 
 
 class UserBookRequestSerializer(BaseBookRequestSerializer):
+    """
+    Book request serializer for Users.
+    """
+
     class Meta:
         model = BookRequest
         fields = [
@@ -108,10 +181,3 @@ class UserBookRequestSerializer(BaseBookRequestSerializer):
             "created_at",
             "reason",
         )
-
-    # def validate(self, data):
-    #     print(data["status"])
-    #     if data["status"] == "rejected" and data["reason"] == "":
-    #         raise serializers.ValidationError({"reason":"Reason is required for rejected books."})
-
-    #     return super().validate(data)
