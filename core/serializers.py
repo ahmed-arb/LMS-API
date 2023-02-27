@@ -49,7 +49,7 @@ class BaseBookLoanSerializer(serializers.ModelSerializer):
     * Returned books have date_returned.
     """
 
-    book = serializers.PrimaryKeyRelatedField(queryset=Book.objects.filter(~Q(stock=0)))
+    book = serializers.PrimaryKeyRelatedField(queryset=Book.objects.exclude(stock=0))
 
     def validate(self, attrs):
         loan = BookLoan(**attrs)
