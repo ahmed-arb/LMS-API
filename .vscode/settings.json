@@ -1,0 +1,9 @@
+{
+  "python.linting.pylintEnabled": true,
+  "python.linting.pylintArgs": [
+    "--load-plugins=pylint_django",
+    "--max-line-length=120",
+    "--disable=django-not-configured",
+    "--django-settings-module=lms.settings"
+  ]
+}

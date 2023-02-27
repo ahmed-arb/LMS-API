@@ -175,3 +175,5 @@ CRONJOBS = [
         ">> " + os.path.join(BASE_DIR, "logs/cron_logs/email_overdue_books.log" + " 2>&1 "),
     )
 ]
+
+CORS_ORIGIN_ALLOW_ALL = True
