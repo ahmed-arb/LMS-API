@@ -10,7 +10,7 @@ from core.models import BookLoan
 def email_overdue_books():
     """cron job for emailing user which have a book overdue"""
     today = datetime.now()
-    loan_queryset = BookLoan.objects.select_related("book").select_related('user').filter(date_due__lt=today)
+    loan_queryset = BookLoan.objects.select_related('book', 'user').filter(date_due__lt=today)
 
     for loan in loan_queryset:
         message = BaseEmailMessage(
