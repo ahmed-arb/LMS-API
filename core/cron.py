@@ -1,10 +1,14 @@
 """ This module has all core app corn jobs"""
 
 from datetime import datetime
+import logging
 
 from templated_mail.mail import BaseEmailMessage
 
 from core.models import BookLoan
+
+
+logger = logging.getLogger(__name__)
 
 
 def email_overdue_books():
@@ -21,4 +25,4 @@ def email_overdue_books():
             },
         )
         message.send([loan.user.email])
-        print(today, loan.user.email, loan.book, loan.date_due)
+        logger.info("email sent to %s for %s due: %s", loan.user.email, loan.book, loan.date_due)

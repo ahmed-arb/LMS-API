@@ -177,3 +177,30 @@ CRONJOBS = [
 ]
 
 CORS_ORIGIN_ALLOW_ALL = True
+
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'simple': {
+            'format': '{levelname} {asctime} {message}',
+            'style': '{',
+        }
+    },
+    'handlers': {
+        'info': {
+            'level': 'INFO',
+            'class': 'logging.FileHandler',
+            'formatter': 'simple',
+            'filename': os.path.join(BASE_DIR, "logs/info.logs")
+        }
+    },
+    'loggers': {
+        '': {
+            'handlers': ['info'],
+            'level': 'INFO',
+            'propagate': True
+        }
+    }
+}
