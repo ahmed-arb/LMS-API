@@ -27,11 +27,8 @@ class User(AbstractUser):
         Returns:
             Bool: if the user is librarian.
         """
-        try:
-            Librarian.objects.get(user_id=self.id)
-            return True
-        except Librarian.DoesNotExist:
-            return False
+        return self.groups.filter(name='librarian').exists()
+
 
 
 class Book(models.Model):
@@ -50,14 +47,6 @@ class Book(models.Model):
     def __str__(self):
         return str(self.name)
 
-
-class Librarian(models.Model):
-    """Creates a child table for librarians for managing permission"""
-
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
-
-    def __str__(self):
-        return str(self.user.username)
 
 
 class BookLoan(models.Model):

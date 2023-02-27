@@ -4,13 +4,13 @@ Views for core app
 
 from rest_framework.filters import SearchFilter
 from rest_framework import viewsets
-from rest_framework.permissions import IsAdminUser, IsAuthenticated
+from rest_framework.permissions import IsAdminUser, IsAuthenticated, DjangoModelPermissionsOrAnonReadOnly
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
 from templated_mail.mail import BaseEmailMessage
 
-from .permissions import IsLibrarian, ReadOnly
+from .permissions import IsLibrarian
 from .models import Book, BookLoan, BookRequest
 from .serializers import (
     FullBookLoanSerializer,
@@ -30,7 +30,7 @@ class BookViewSet(viewsets.ModelViewSet):
     serializer_class = BookSerializer
     filter_backends = [SearchFilter]
     search_fields = ["name", "author", "publisher"]
-    permission_classes = [IsAdminUser | IsLibrarian | ReadOnly]
+    permission_classes = [DjangoModelPermissionsOrAnonReadOnly]
 
 
 class BookLoanViewSet(viewsets.ModelViewSet):
