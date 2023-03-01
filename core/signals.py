@@ -2,7 +2,7 @@
 Signals for Core app
 """
 
-from django.db.models.signals import pre_save
+from django.db.models.signals import pre_save, post_save
 from django.dispatch import receiver
 from django.db.models import F
 
@@ -10,6 +10,8 @@ from templated_mail.mail import BaseEmailMessage
 
 from .models import Book, BookLoan, BookRequest
 
+import logging
+logger = logging.getLogger(__name__)
 
 @receiver(pre_save, sender=BookLoan)
 def update_inventory(sender, **kwargs):
@@ -32,7 +34,7 @@ def update_inventory(sender, **kwargs):
                 )
 
 
-@receiver(pre_save, sender=BookRequest)
+@receiver(post_save, sender=BookRequest)
 def notify_user(sender, **kwargs):
     """
     A signal that notifies user when their book request is rejected.
@@ -41,15 +43,20 @@ def notify_user(sender, **kwargs):
     if request_instance.id is None:  # new object will be created
         pass
     else:
+
         loan_previous = BookRequest.objects.get(id=request_instance.id)
         if loan_previous.status != request_instance.status:  # status updated
             if request_instance.status == "rejected":
-                message = BaseEmailMessage(
-                    template_name="emails/book_request_rejected.html",
-                    context={
-                        "name": request_instance.user,
-                        "book": request_instance.book_name,
-                        "reason": request_instance.reason,
-                    },
-                )
-                message.send([request_instance.user.email])
+                try:
+                    message = BaseEmailMessage(
+                        template_name="emails/book_request_rejected.html",
+                        context={
+                            "name": request_instance.user,
+                            "book": request_instance.book_name,
+                            "reason": request_instance.reason,
+                        },
+                    )
+                    message.send([request_instance.user.email])
+                    logger.info("email sent")
+                except Exception:
+                    logger.info("email error")

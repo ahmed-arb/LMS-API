@@ -14,6 +14,7 @@ from .permissions import IsLibrarian
 from .models import Book, BookLoan, BookRequest
 from .serializers import (
     FullBookLoanSerializer,
+    ReadBookLoanSerializer,
     FullBookRequestSerializer,
     UserBookLoanSerializer,
     BookSerializer,
@@ -50,6 +51,8 @@ class BookLoanViewSet(viewsets.ModelViewSet):
 
     def get_serializer_class(self):
         user = self.request.user
+        if self.request.method == 'GET':
+            return ReadBookLoanSerializer
         if user.is_librarian:
             return FullBookLoanSerializer
         return UserBookLoanSerializer

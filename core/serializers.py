@@ -27,7 +27,7 @@ class CurrentUserSerializer(BaseUserSerializer):
     """
 
     class Meta(BaseUserSerializer.Meta):
-        fields = ["id", "username", "email", "phone_number", "gender"]
+        fields = ["id", "username", "email", "phone_number", "gender", "is_librarian"]
 
 
 class BookSerializer(serializers.ModelSerializer):
@@ -48,8 +48,9 @@ class BaseBookLoanSerializer(serializers.ModelSerializer):
     * Issued books have: date_borrowed and date_due.
     * Returned books have date_returned.
     """
-
     book = serializers.PrimaryKeyRelatedField(queryset=Book.objects.exclude(stock=0))
+    # book = BookSerializer()
+    # book_id = serializers.PrimaryKeyRelatedField(queryset=Book.objects.exclude(stock=0), write_only=True)
 
     def validate(self, attrs):
         loan = BookLoan(**attrs)
@@ -77,6 +78,20 @@ class BaseBookLoanSerializer(serializers.ModelSerializer):
         return super().validate(attrs)
 
 
+class ReadBookLoanSerializer(BaseBookLoanSerializer):
+    book = BookSerializer()
+    class Meta:
+        model = BookLoan
+        fields = [
+            "id",
+            "user",
+            "book",
+            "status",
+            "created_at",
+            "date_borrowed",
+            "date_due",
+            "date_returned",
+        ]
 class FullBookLoanSerializer(BaseBookLoanSerializer):
     """
     Book loans serializer for librarians and admin.
@@ -133,7 +148,7 @@ class BaseBookRequestSerializer(serializers.ModelSerializer):
     """
 
     def validate(self, attrs):
-        if attrs["status"] == "rejected" and not attrs["reason"]:
+        if attrs.get("status", None) == "rejected" and not attrs.get("reason", None):
             raise serializers.ValidationError(
                 {"reason": "Reason is required for rejected books."}
             )
