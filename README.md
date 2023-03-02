@@ -8,7 +8,7 @@ You first need an env ☘️
 
 ```python
 # create the env
-conda create --name libraryenv
+conda create --name lms
 
 # install requirements
 pip install -r requirements.txt
@@ -19,6 +19,8 @@ accordingly. Otherwise you just need a .env file with DB credentials.
 Migrate models to your db
 
 ```python
+python manage.py makemigrations
+
 python manage.py migrate
 ```
 
@@ -26,12 +28,4 @@ Start the app
 
 ```python
 python manage.py runserver
-```
-
-### Documentation 📝:
-
-Complete docs of the API are available at the endpoint:
-
-```
-http://{HOST}/docs
 ```
