@@ -11,13 +11,13 @@ class User(AbstractUser):
     class UserGender(models.TextChoices):
         """Enumeration class for user gender"""
 
-        MALE = "male", _("Male")
-        FEMALE = "female", _("Female")
-        OTHER = "other", _("Other")
+        MALE = 0, _("Male")
+        FEMALE = 1, _("Female")
+        OTHER = 2, _("Other")
 
     email = models.EmailField(_("email address"), unique=True, blank=False, null=False)
     phone_number = models.CharField(max_length=20, blank=True)
-    gender = models.CharField(max_length=10, choices=UserGender.choices, blank=True, null=True)
+    gender = models.SmallIntegerField(choices=UserGender.choices, blank=True, null=True)
     books = models.ManyToManyField("Book", through="BookLoan")
 
     @property
@@ -55,15 +55,15 @@ class BookLoan(models.Model):
     class BookLoanStatus(models.TextChoices):
         """Enumeration class for book loans statues"""
 
-        REQUESTED = "requested", _("Requested")
-        ISSUED = "issued", _("Issued")
-        REJECTED = "rejected", _("Rejected")
-        RETURNED = "returned", _("Returned")
+        REQUESTED = 0, _("Requested")
+        ISSUED = 1, _("Issued")
+        REJECTED = 2, _("Rejected")
+        RETURNED = 3, _("Returned")
 
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     book = models.ForeignKey(Book, on_delete=models.CASCADE, related_name='loans')
-    status = models.CharField(
-        max_length=10, choices=BookLoanStatus.choices, default=BookLoanStatus.REQUESTED
+    status = models.SmallIntegerField(
+        choices=BookLoanStatus.choices, default=BookLoanStatus.REQUESTED
     )
     created_at = models.DateTimeField(auto_now_add=True)
     date_borrowed = models.DateField(null=True, blank=True)
@@ -80,14 +80,13 @@ class BookRequest(models.Model):
     class BookRequestStatus(models.TextChoices):
         """Enumeration class for book request statues"""
 
-        PENDING = "pending", _("Pending")
-        APPROVED = "approved", _("Approved")
-        REJECTED = "rejected", _("Rejected")
+        PENDING = (0, "Pending")
+        APPROVED = (1, "Approved")
+        REJECTED = (2, "Rejected")
 
     user = models.ForeignKey(User, on_delete=models.CASCADE,  related_name='book_requests')
     book_name = models.CharField(max_length=100)
-    status = models.CharField(
-        max_length=10,
+    status = models.SmallIntegerField(
         choices=BookRequestStatus.choices,
         default=BookRequestStatus.PENDING,
     )
