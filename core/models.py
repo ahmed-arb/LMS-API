@@ -8,7 +8,7 @@ from django.utils.translation import gettext_lazy as _
 class User(AbstractUser):
     """Override base User model"""
 
-    class UserGender(models.TextChoices):
+    class UserGender(models.IntegerChoices):
         """Enumeration class for user gender"""
 
         MALE = 0, _("Male")
@@ -52,7 +52,7 @@ class Book(models.Model):
 class BookLoan(models.Model):
     """This model represents user book loans. Loans are managed by librarians and admins."""
 
-    class BookLoanStatus(models.TextChoices):
+    class BookLoanStatus(models.IntegerChoices):
         """Enumeration class for book loans statues"""
 
         REQUESTED = 0, _("Requested")
@@ -77,7 +77,7 @@ class BookLoan(models.Model):
 class BookRequest(models.Model):
     """This model represents unavailable books requested by users"""
 
-    class BookRequestStatus(models.TextChoices):
+    class BookRequestStatus(models.IntegerChoices):
         """Enumeration class for book request statues"""
 
         PENDING = (0, "Pending")
